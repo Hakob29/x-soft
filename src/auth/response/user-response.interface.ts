@@ -1,3 +1,4 @@
+import { Role } from "src/user/user.entity"
 
 export interface UserResponseInterface {
 
@@ -5,6 +6,8 @@ export interface UserResponseInterface {
         readonly username: string
 
         readonly email: string
+
+        readonly role: Role[]
 
     }
 

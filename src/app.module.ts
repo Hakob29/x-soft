@@ -5,11 +5,12 @@ import { AppDataSource } from 'ormconfig';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { PostsModule } from './posts/posts.module';
+import { JwtStrategy } from './auth/strategy/auth-strategy';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot(AppDataSource.options),
+    ConfigModule.forRoot({ isGlobal: true }),
     AuthModule,
     UserModule,
     PostsModule
