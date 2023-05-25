@@ -7,6 +7,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from "bcrypt"
 import { DeleteUserDto } from './dto/delete-user.dto';
 import { TypeOrmQueryService } from '@nestjs-query/query-typeorm';
+import { RestoreUserDto } from './dto/restore-user.dto';
 
 
 
@@ -19,23 +20,6 @@ export class UserService extends TypeOrmQueryService<User> {
         super(userRepo, { useSoftDelete: true })
     }
 
-
-    //FIND USER BY EMAIL
-    async findByEmail(email: string): Promise<UserResponseInterface> {
-        try {
-            const user = await this.userRepo.findOne({ where: { email: email } });
-            if (!user) throw new HttpException("USER NOT FOUND", HttpStatus.NOT_FOUND);
-            return {
-                user: {
-                    username: user.username,
-                    email: user.email,
-                    role: user.roles
-                }
-            }
-        } catch (err) {
-            throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
-        }
-    }
 
     //UPDATE USER 
     async updateUser(dto: UpdateUserDto, currentUser: User): Promise<UserResponseInterface> {
@@ -79,4 +63,51 @@ export class UserService extends TypeOrmQueryService<User> {
             throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
         }
     }
+
+
+    //FIND USER BY EMAIL
+    async findByEmail(email: string): Promise<UserResponseInterface> {
+        try {
+            const user = await this.userRepo.findOne({ where: { email: email } });
+            if (!user) throw new HttpException("USER NOT FOUND", HttpStatus.NOT_FOUND);
+            return {
+                user: {
+                    username: user.username,
+                    email: user.email,
+                    role: user.roles
+                }
+            }
+        } catch (err) {
+            throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+
+    //RESTORE DELETED USER
+    async restoreUser(dto: RestoreUserDto): Promise<UserResponseInterface> {
+        try {
+            const deletedUser = await this.userRepo.createQueryBuilder("user")
+                .withDeleted()
+                .where(`user.deletedAt IS NOT NULL`)
+                .andWhere("user.email like :name", { name: `%${dto.email}%` })
+                .getOne();
+
+            if (!await bcrypt.compare(dto.password, deletedUser.password)) {
+                throw new HttpException("WRONG PASSWORD", HttpStatus.BAD_REQUEST);
+            }
+            await this.userRepo.restore(deletedUser.id);
+            return {
+                user: {
+                    username: deletedUser.username,
+                    email: deletedUser.email,
+                    role: deletedUser.roles
+                }
+            }
+        } catch (err) {
+            console.log(err);
+            throw new HttpException(err.message, HttpStatus.BAD_REQUEST);
+        }
+
+    }
+
 }

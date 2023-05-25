@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UserResponseInterface } from './response/user-response.interface';
 import { AuthGuard } from '@nestjs/passport';
@@ -9,6 +9,7 @@ import { DeleteUserDto } from './dto/delete-user.dto';
 import { UpdateResult } from 'typeorm';
 import { HasRoles } from 'src/auth/decorators/has-roles.decorator';
 import { RolesGuard } from 'src/auth/strategy/roles.guard';
+import { RestoreUserDto } from './dto/restore-user.dto';
 
 @Controller('user')
 export class UserController {
@@ -16,15 +17,6 @@ export class UserController {
         private readonly userService: UserService,
     ) { }
 
-    //FIND USER BY EMAIL
-    @HasRoles(Role.Admin)
-    @UseGuards(AuthGuard('jwt'), RolesGuard)
-    @Get("/:email")
-    async findByEmail(
-        @Param("email") email: string
-    ): Promise<UserResponseInterface> {
-        return await this.userService.findByEmail(email);
-    }
 
     //UPDATE USER
     @UseGuards(AuthGuard("jwt"))
@@ -45,4 +37,27 @@ export class UserController {
     ): Promise<UpdateResult> {
         return await this.userService.deleteUser(dto, currentUser)
     }
+
+
+    //FIND USER BY EMAIL
+    @HasRoles(Role.Admin)
+    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @Get("/:email")
+    async findByEmail(
+        @Param("email") email: string
+    ): Promise<UserResponseInterface> {
+        return await this.userService.findByEmail(email);
+    }
+
+
+    //RESTORE DELETED USER
+    @HasRoles(Role.Admin)
+    @UseGuards(AuthGuard('jwt'), RolesGuard)
+    @Post("/restore")
+    async restoreUser(
+        @Body() dto: RestoreUserDto
+    ) {
+        return await this.userService.restoreUser(dto);
+    }
+
 }
