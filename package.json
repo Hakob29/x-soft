@@ -26,6 +26,7 @@
     "migration:revert": "npm run typeorm -- migration:revert"
   },
   "dependencies": {
+    "@nestjs-query/query-typeorm": "^0.30.0",
     "@nestjs/common": "^8.0.0",
     "@nestjs/config": "^2.3.1",
     "@nestjs/core": "^8.0.0",
@@ -38,6 +39,7 @@
     "class-validator": "^0.14.0",
     "cross-var": "^1.1.0",
     "dotenv": "^16.0.3",
+    "firebase-admin": "^11.8.0",
     "passport-jwt": "^4.0.1",
     "pg": "^8.11.0",
     "reflect-metadata": "^0.1.13",
