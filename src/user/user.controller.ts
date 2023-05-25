@@ -4,9 +4,11 @@ import { UserResponseInterface } from './response/user-response.interface';
 import { AuthGuard } from '@nestjs/passport';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { CurrentUser } from 'src/auth/decorators/current-user.decorators';
-import { User } from './user.entity';
+import { Role, User } from './user.entity';
 import { DeleteUserDto } from './dto/delete-user.dto';
 import { UpdateResult } from 'typeorm';
+import { HasRoles } from 'src/auth/decorators/has-roles.decorator';
+import { RolesGuard } from 'src/auth/strategy/roles.guard';
 
 @Controller('user')
 export class UserController {
@@ -15,6 +17,8 @@ export class UserController {
     ) { }
 
     //FIND USER BY EMAIL
+    @HasRoles(Role.Admin)
+    @UseGuards(AuthGuard('jwt'), RolesGuard)
     @Get("/:email")
     async findByEmail(
         @Param("email") email: string

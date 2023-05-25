@@ -23,6 +23,7 @@ export class AuthService {
         try {
             const newUser = await this.userRepo.create({
                 ...dto,
+                roles: dto.role,
                 password: await bcrypt.hash(dto.password, 10)
             });
             await this.userRepo.save(newUser);
@@ -44,7 +45,7 @@ export class AuthService {
             const user = await this.userRepo.findOne({ where: { email: dto.email } });
             if (!user) throw new HttpException("WRONG EMAIL", HttpStatus.NOT_FOUND);
             if (!(await bcrypt.compare(dto.password, user.password))) throw new UnauthorizedException()
-            const payload = ({ username: user.username, sub: user.id });
+            const payload = ({ username: user.username, sub: user.id, role: user.roles });
             return {
                 access_token: this.jwtService.sign(payload)
             }

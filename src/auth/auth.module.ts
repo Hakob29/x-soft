@@ -14,7 +14,8 @@ import { JwtStrategy } from './strategy/auth-strategy';
     ConfigModule.forRoot(),
     JwtModule.register({
       global: true,
-      secret: process.env.JWT_SECRET_KEY
+      secret: process.env.JWT_SECRET_KEY,
+      signOptions: { expiresIn: '1h' },
     }),
   ],
   controllers: [AuthController],
