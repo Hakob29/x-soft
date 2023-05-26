@@ -1,4 +1,4 @@
-import { Entity, ManyToMany, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "src/user/user.entity";
 
 
@@ -13,5 +13,4 @@ export class Posts {
         onUpdate: "CASCADE"
     })
     user: User
-
 }

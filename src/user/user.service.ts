@@ -36,12 +36,13 @@ export class UserService extends TypeOrmQueryService<User> {
                 password: await bcrypt.hash(dto.new_password, 10)
             });
 
-            const newUser = await this.userRepo.findOne({ where: { id: user.id } });
+            const newUser = await this.userRepo.findOne({ where: { id: user.id }, relations: ["posts"] });
             return {
                 user: {
                     username: newUser.username,
                     email: newUser.email,
-                    role: newUser.roles
+                    role: newUser.roles,
+                    posts: newUser.posts
                 }
             }
         } catch (err) {
@@ -68,13 +69,14 @@ export class UserService extends TypeOrmQueryService<User> {
     //FIND USER BY EMAIL
     async findByEmail(email: string): Promise<UserResponseInterface> {
         try {
-            const user = await this.userRepo.findOne({ where: { email: email } });
+            const user = await this.userRepo.findOne({ where: { email: email }, relations: ["posts"] });
             if (!user) throw new HttpException("USER NOT FOUND", HttpStatus.NOT_FOUND);
             return {
                 user: {
                     username: user.username,
                     email: user.email,
-                    role: user.roles
+                    role: user.roles,
+                    posts: user.posts
                 }
             }
         } catch (err) {
@@ -88,6 +90,7 @@ export class UserService extends TypeOrmQueryService<User> {
         try {
             const deletedUser = await this.userRepo.createQueryBuilder("user")
                 .withDeleted()
+                .leftJoinAndSelect('user.posts', 'posts')
                 .where(`user.deletedAt IS NOT NULL`)
                 .andWhere("user.email like :name", { name: `%${dto.email}%` })
                 .getOne();
@@ -100,7 +103,8 @@ export class UserService extends TypeOrmQueryService<User> {
                 user: {
                     username: deletedUser.username,
                     email: deletedUser.email,
-                    role: deletedUser.roles
+                    role: deletedUser.roles,
+                    posts: deletedUser.posts
                 }
             }
         } catch (err) {
